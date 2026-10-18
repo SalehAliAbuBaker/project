@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة استعلام وإدارة المشاريع | مؤسسة الرأفة للتنمية</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- خط القاهرة -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- أيقونات Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+                    colors: {
+                        raafa: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#c59a3f',
+                            600: '#b0852e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card-3d {
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+        }
+        .card-3d:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px -3px rgba(20, 83, 45, 0.12), 0 4px 6px -4px rgba(20, 83, 45, 0.06);
+        }
+        @media print {
+            body * { visibility: hidden !important; }
+            #printableDoc, #printableDoc * { visibility: visible !important; }
+            #printableDoc {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 15mm !important;
+                background: white !important;
+                z-index: 99999 !important;
+                border: 2px solid #166534 !important;
+            }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-raafa-800 selection:text-white">
+
+    <!-- الترويسة الرئيسية -->
+    <header class="bg-raafa-900 text-white shadow-md sticky top-0 z-30 border-b-2 border-gold-500 no-print">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-white rounded-xl p-1 flex items-center justify-center shadow-sm">
+                    <img src="WhatsApp Image 2026-10-18 at 12.16.57 AM.jpeg" alt="شعار مؤسسة الرأفة" class="h-full object-contain">
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-tight">مؤسسة الرأفة للتنمية التعليمية والاجتماعية</h1>
+                    <p class="text-xs text-emerald-200">بوابة استعلام وإدارة المشاريع ودراسات التكلفة والمعاينة المباشرة</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="openProjectModal()" class="bg-gold-500 hover:bg-gold-600 text-slate-900 font-bold text-xs sm:text-sm px-4 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                    <span>إضافة دراسة / مشروع جديد</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي للاستعلام والفلترة -->
+    <main class="max-w-7xl mx-auto px-4 py-6 space-y-6 no-print">
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-1.5 flex-wrap" id="categoryFilterContainer"></div>
+
+                <div class="relative w-full sm:w-64">
+                    <input type="text" id="searchInput" oninput="renderProjects()" placeholder="استعلام باسم المشروع، الرمز، أو المرفقات..." class="w-full pr-8 pl-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-raafa-800">
+                    <i class="fa-solid fa-search absolute right-2.5 top-2.5 text-slate-400 text-xs"></i>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 flex items-center gap-2 flex-wrap text-xs">
+                <span class="font-bold text-slate-500 flex items-center gap-1">
+                    <i class="fa-solid fa-filter text-slate-400"></i> حالة المشروع:
+                </span>
+                <button onclick="filterStatus('الكل')" class="status-btn active-status px-2.5 py-1 rounded-md font-bold bg-slate-800 text-white">الكل</button>
+                <button onclick="filterStatus('مطلوب')" class="status-btn px-2.5 py-1 rounded-md font-bold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100">مطلوب للتمويل</button>
+                <button onclick="filterStatus('مستمر')" class="status-btn px-2.5 py-1 rounded-md font-bold bg-sky-50 text-sky-800 border border-sky-200 hover:bg-sky-100">مستمر / قيد التنفيذ</button>
+                <button onclick="filterStatus('متوقف')" class="status-btn px-2.5 py-1 rounded-md font-bold bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100">متوقف مؤقتاً</button>
+                <button onclick="filterStatus('مكتمل')" class="status-btn px-2.5 py-1 rounded-md font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100">مكتمل ومنجز</button>
+            </div>
+        </div>
+
+        <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+
+    </main>
+
+    <!-- نافذة منبثقة: تفاصيل مقترح المشروع والاستعراض المباشر للملفات -->
+    <div id="proposalModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-3xl w-full border border-slate-200 overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+            <div class="bg-raafa-900 text-white p-4 flex items-center justify-between border-b-2 border-gold-500">
+                <div class="flex items-center gap-2.5">
+                    <img src="WhatsApp Image 2026-10-18 at 12.16.57 AM.jpeg" alt="شعار" class="h-8 w-8 object-contain bg-white rounded p-0.5">
+                    <div>
+                        <h3 id="propModalTitle" class="font-bold text-sm text-white">وثيقة دراسة ومقترح المشروع</h3>
+                        <p id="propModalId" class="text-[11px] text-gold-400 font-mono"></p>
+                    </div>
+                </div>
+                <button onclick="closeModal('proposalModal')" class="text-slate-300 hover:text-white text-base"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="propModalBody" class="p-5 space-y-4 overflow-y-auto text-xs sm:text-sm"></div>
+
+            <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+                <button onclick="triggerPrintNow()" class="bg-raafa-800 hover:bg-raafa-700 text-white font-bold px-4 py-2 rounded-lg text-xs flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-print text-gold-400"></i> طباعة الوثيقة الرسمية (A4)
+                </button>
+                <button onclick="closeModal('proposalModal')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-4 py-2 rounded-lg text-xs">
+                    إغلاق النافذة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة استعراض الملفات والصور المباشرة (Viewer Modal) -->
+    <div id="fileViewerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] hidden items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-4xl w-full border border-slate-700 overflow-hidden shadow-2xl flex flex-col h-[88vh]">
+            <div class="bg-slate-900 text-white p-3.5 flex items-center justify-between border-b border-slate-700">
+                <div class="flex items-center gap-2 truncate">
+                    <i id="viewerFileIcon" class="fa-solid fa-file text-gold-400 text-base"></i>
+                    <span id="viewerFileName" class="font-bold text-xs sm:text-sm truncate">استعراض المرفق</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a id="viewerDownloadBtn" href="#" download class="bg-gold-500 hover:bg-gold-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-download"></i> تحميل النسخة
+                    </a>
+                    <button onclick="closeModal('fileViewerModal')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 hover:text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="viewerContentArea" class="flex-1 bg-slate-100 overflow-auto flex items-center justify-center p-3">
+                <!-- يتم حقن عارض الصورة أو عارض PDF هنا -->
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة منبثقة: نموذج إضافة وتعديل المشروع -->
+    <div id="projectEditModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-3xl w-full border border-slate-200 overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+            <div class="bg-raafa-900 text-white p-4 flex items-center justify-between border-b-2 border-gold-500">
+                <h3 id="modalFormHeading" class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-gold-500"></i>
+                    <span>إضافة / تعديل دراسة المشروع</span>
+                </h3>
+                <button onclick="closeModal('projectEditModal')" class="text-slate-300 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form onsubmit="handleSaveProject(event)" class="p-5 space-y-4 overflow-y-auto text-xs">
+                <input type="hidden" id="editProjId">
+
+                <!-- 1. البيانات الإدارية -->
+                <div class="border-b border-slate-100 pb-3 space-y-3">
+                    <h4 class="font-bold text-raafa-900 text-xs flex items-center gap-1">
+                        <i class="fa-solid fa-circle-info text-gold-600"></i> البيانات الإدارية ودرجة التقدم
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="sm:col-span-2">
+                            <label class="block font-bold text-slate-700 mb-1">اسم المشروع المقترح *</label>
+                            <input type="text" id="fieldTitle" required placeholder="مثال: توريد وتركيب منظومة تكييف بدار الزهراء للدراسات الإسلامية" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">حالة المشروع *</label>
+                            <select id="fieldStatus" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold">
+                                <option value="مطلوب">مطلوب للتمويل</option>
+                                <option value="مستمر">مستمر / قيد التنفيذ</option>
+                                <option value="متوقف">متوقف مؤقتاً</option>
+                                <option value="مكتمل">مكتمل ومنجز</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="font-bold text-slate-700">القطاع التنموي *</label>
+                                <button type="button" onclick="promptNewSector()" class="text-[11px] text-raafa-800 hover:underline font-bold">+ قطاع جديد</button>
+                            </div>
+                            <select id="fieldCategory" required class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg"></select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">الجهة المستفيدة المباشرة *</label>
+                            <input type="text" id="fieldBeneficiaryEntity" required placeholder="مثال: دار الزهراء للدراسات الإسلامية" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">نطاق / موقع التنفيذ *</label>
+                            <input type="text" id="fieldLocation" required value="تريم - حضرموت" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">المدة الزمنية المقدرة للتنفيذ</label>
+                            <input type="text" id="fieldDuration" placeholder="مثال: شهران من استلام الموازنة" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">المستفيدون المستهدفون *</label>
+                            <input type="text" id="fieldBeneficiaries" required placeholder="مثال: 450 طالبة وباحثة" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. جدول الموازنة -->
+                <div class="border-b border-slate-100 pb-3 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-bold text-raafa-900 text-xs flex items-center gap-1">
+                                <i class="fa-solid fa-coins text-gold-600"></i> موازنة المشروع وبنود التكلفة المالية (BOQ)
+                            </h4>
+                            <p class="text-[11px] text-slate-400">أدخل البنود والكميات وسعر الوحدة، ويتم احتساب الإجماليات آلياً</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] text-slate-600 font-bold">عملة التكلفة:</span>
+                            <select id="fieldCurrency" onchange="calculateBudgetTotals()" class="p-1 bg-slate-100 border border-slate-300 rounded font-bold text-xs">
+                                <option value="SAR">ريال سعودي (SAR)</option>
+                                <option value="USD">دولار أمريكي (USD)</option>
+                                <option value="YER">ريال يمني (YER)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                                <tr>
+                                    <th class="p-2">بيان البند / التوريد / الأعمال</th>
+                                    <th class="p-2 w-20 text-center">الكمية</th>
+                                    <th class="p-2 w-28 text-left">سعر الوحدة</th>
+                                    <th class="p-2 w-28 text-left">الإجمالي</th>
+                                    <th class="p-2 w-10 text-center">حذف</th>
+                                </tr>
+                            </thead>
+                            <tbody id="budgetItemsTbody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-1">
+                        <button type="button" onclick="addBudgetItemRow()" class="bg-slate-100 hover:bg-raafa-50 text-raafa-800 font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-xs flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> إضافة بند تكلفة
+                        </button>
+                        <div class="text-left font-bold text-xs text-slate-800 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+                            <span>إجمالي الموازنة: </span>
+                            <span id="calculatedTotalCost" class="text-raafa-900 font-black text-sm">0 SAR</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. قسم رفع وإدارة الملفات المرفقة -->
+                <div class="border-b border-slate-100 pb-3 space-y-2 bg-slate-50/70 p-3.5 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-raafa-900 text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-paperclip text-gold-600"></i>
+                            <span>ملفات ووثائق دراسة المشروع (معاينة واستعراض مباشر)</span>
+                        </h4>
+                        <span class="text-[11px] text-slate-400">يدعم الصور والمستندات و PDF</span>
+                    </div>
+
+                    <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:border-raafa-700 rounded-xl p-4 bg-white cursor-pointer transition group">
+                        <div class="flex flex-col items-center justify-center space-y-1">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400 group-hover:text-raafa-800 transition"></i>
+                            <p class="text-xs font-bold text-slate-700 group-hover:text-raafa-900">اضغط هنا لاختيار أو سحب الصور والمستندات</p>
+                            <p class="text-[10px] text-slate-400">PDF، JPG، PNG، DOCX (يتم تخزينها واستعراضها مباشرة)</p>
+                        </div>
+                        <input type="file" id="fileUploadInput" multiple onchange="handleFilesSelected(event)" class="hidden">
+                    </label>
+
+                    <div id="attachedFilesList" class="space-y-1.5 pt-1"></div>
+                </div>
+
+                <!-- 4. المبررات والمكونات -->
+                <div class="space-y-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">مبررات المشروع وأهدافه *</label>
+                        <textarea id="fieldRationale" rows="2" required placeholder="مبررات الحاجة والأثر المستهدف..." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg"></textarea>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">المكونات وخطة التنفيذ والمواصفات *</label>
+                        <textarea id="fieldComponents" rows="2" required placeholder="المواصفات الفنية، مراحل التنفيذ، وضمان الجودة..." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg"></textarea>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('projectEditModal')" class="bg-slate-100 text-slate-700 font-bold px-4 py-2 rounded-lg">إلغاء</button>
+                    <button type="submit" class="bg-raafa-800 hover:bg-raafa-700 text-white font-bold px-5 py-2 rounded-lg flex items-center gap-1.5 shadow">
+                        <i class="fa-solid fa-check"></i> حفظ بيانات المشروع والمرفقات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- الحاوية المخصصة للطباعة الرسمية A4 -->
+    <div id="printableDoc" style="display: none;"></div>
+
+    <script>
+        let availableSectors = [
+            'المشاريع التعليمية والقرآنية',
+            'الأمن الغذائي والمخابز الخيرية',
+            'مشاريع السقيا وحفر الآبار',
+            'المساعدات والرعاية الطبية',
+            'الرعاية الاجتماعية وكفالة الأيتام'
+        ];
+
+        // مصفوفة المشاريع مع إدراج نوع الملف لتسهيل المعاينة
+        const INITIAL_PROJECTS = [
+            {
+                id: 'PRJ-101',
+                title: 'مشروع توريد وتركيب منظومة تكييف بدار الزهراء للدراسات الإسلامية',
+                status: 'مطلوب',
+                category: 'المشاريع التعليمية والقرآنية',
+                location: 'تريم - حضرموت',
+                beneficiaryEntity: 'دار الزهراء للدراسات الإسلامية',
+                duration: 'شهران من تاريخ التمويل',
+                beneficiaries: '450 طالبة وباحثة',
+                currency: 'SAR',
+                totalCostNumber: 198720,
+                costDisplay: '198,720 ريال سعودي',
+                rationale: 'تحسين وتطوير البيئة التعليمية والسكنية وحماية الطالبات والباحثات من درجات الحرارة المرتفعة التي تتجاوز 40° مئوية في فصل الصيف، واستبدال الأجهزة التالفة بوحدات تكييف حديثة موفرة للطاقة.',
+                components: 'توريد وتركيب وفحص وحدات التكييف الاسبليت الموزعة على القاعات والفصول الدراسية والسكن الداخلي، مع عمل التمديدات النحاسية ومنظومات الحماية الكهربائية بإشراف هندسي معتمد.',
+                budgetBreakdown: [
+                    { item: 'توريد وحدات تكييف اسبليت قدرة 2 طن موفرة للطاقة', qty: 24, unitCost: 4800, total: 115200 },
+                    { item: 'توريد وحدات تكييف اسبليت قدرة 1.5 طن للقاعات الصغرى', qty: 12, unitCost: 3600, total: 43200 },
+                    { item: 'تمديدات نحاسية وكابلات كهربائية وقواطع حماية', qty: 1, unitCost: 22320, total: 22320 },
+                    { item: 'أعمال التركيب والاختبار والتشغيل التجريبي والضمان', qty: 1, unitCost: 18000, total: 18000 }
+                ],
+                attachments: [
+                    { name: 'مخطط_القاعات_والتكييف_دار_الزهراء.png', type: 'image/png', size: '1.2 MB', data: 'WhatsApp Image 2026-10-18 at 12.16.57 AM.jpeg' }
+                ]
+            },
+            {
+                id: 'PRJ-102',
+                title: 'مشروع تشغيل المخبز الخيري الآلي (مخبز الأنوار) وتوفير الرغيف المدعوم',
+                status: 'مستمر',
+                category: 'الأمن الغذائي والمخابز الخيرية',
+                location: 'تريم (حارة الروضة بعيديد)',
+                beneficiaryEntity: 'الأسر الأشد فقراً والأيتام بتريم وضواحيها',
+                duration: '6 أشهر (نصف سنوي)',
+                beneficiaries: '4,200 فرد من الأسر المتعففة',
+                currency: 'USD',
+                totalCostNumber: 45000,
+                costDisplay: '45,000 دولار أمريكي',
+                rationale: 'توفير الخبز اليومي والرغيف الصحي للمحتاجين والأسر المتعففة في مدينة تريم للتخفيف من وطأة غلاء المعيشة وضعف الدخل.',
+                components: 'تأمين المواد الأولية من دقيق وخميرة، تكاليف الوقود والديزل، الصيانة الدورية لخطوط الإنتاج الآلية، وأجور العمالة التشغيلية المباشرة.',
+                budgetBreakdown: [
+                    { item: 'مادة الدقيق التمويني الممتاز (أكياس زنة 50 كجم)', qty: 600, unitCost: 40, total: 24000 },
+                    { item: 'مستلزمات العجين والخميرة والملح والأكياس الصحية', qty: 6, unitCost: 800, total: 4800 },
+                    { item: 'وقود الديزل ومصادر الطاقة لتشغيل الأفران الآلية', qty: 6, unitCost: 1200, total: 7200 },
+                    { item: 'أجور العمالة المباشرة والصيانة الدورية للمعدات', qty: 6, unitCost: 1500, total: 9000 }
+                ],
+                attachments: []
+            },
+            {
+                id: 'PRJ-103',
+                title: 'بناء وتشطيب 11 فصلاً دراسياً إضافياً - مدرسة دار المصطفى الأهلية',
+                status: 'مستمر',
+                category: 'المشاريع التعليمية والقرآنية',
+                location: 'تريم - حضرموت',
+                beneficiaryEntity: 'مدرسة دار المصطفى الأهلية للبنين',
+                duration: '5 أشهر',
+                beneficiaries: '650 طالباً',
+                currency: 'USD',
+                totalCostNumber: 85000,
+                costDisplay: '85,000 دولار أمريكي',
+                rationale: 'استيعاب الأعداد المتزايدة من الطلاب وتأمين بيئة دراسية نموذجية تواكب معايير التعليم الحديثة.',
+                components: 'تنفيذ أعمال العظم والخرسانات للدور الثاني، أعمال التشطيبات والدهانات والتركيبات الكهربائية والأبواب والشبابيك والأثاث المدرسي الكامل.',
+                budgetBreakdown: [
+                    { item: 'أعمال الهيكل الخرساني والبناء للدور الثاني (11 فصلاً)', qty: 1, unitCost: 42000, total: 42000 },
+                    { item: 'أعمال اللياسة والدهانات والتشطيبات المعمارية', qty: 1, unitCost: 18000, total: 18000 },
+                    { item: 'التمديدات الكهربائية والإضاءة ومنظومات التهوية', qty: 1, unitCost: 11000, total: 11000 },
+                    { item: 'الأثاث المدرسي والمقاعد والسبورات الذكية التفاعلية', qty: 11, unitCost: 1272.72, total: 14000 }
+                ],
+                attachments: []
+            }
+        ];
+
+        let projectsData = [];
+        let activeCategory = 'الكل';
+        let activeStatus = 'الكل';
+        let currentViewingProject = null;
+        let currentFormFiles = [];
+
+        function initApp() {
+            const saved = localStorage.getItem('raafa_projects_registry_v4');
+            if (saved) {
+                try {
+                    projectsData = JSON.parse(saved);
+                } catch(e) {
+                    projectsData = [...INITIAL_PROJECTS];
+                }
+            } else {
+                projectsData = [...INITIAL_PROJECTS];
+            }
+
+            projectsData.forEach(p => {
+                if (p.category && !availableSectors.includes(p.category)) {
+                    availableSectors.push(p.category);
+                }
+            });
+
+            initCategoryFilters();
+            renderProjects();
+        }
+
+        function saveProjectsToStorage() {
+            localStorage.setItem('raafa_projects_registry_v4', JSON.stringify(projectsData));
+        }
+
+        function initCategoryFilters() {
+            const container = document.getElementById('categoryFilterContainer');
+            let html = `<button onclick="filterCategory('الكل')" class="filter-btn active bg-raafa-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">الكل</button>`;
+            
+            availableSectors.forEach(sec => {
+                html += `<button onclick="filterCategory('${sec}')" class="filter-btn bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition">${sec}</button>`;
+            });
+
+            container.innerHTML = html;
+
+            const select = document.getElementById('fieldCategory');
+            select.innerHTML = availableSectors.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+
+        function promptNewSector() {
+            const newSec = prompt('أدخل اسم القطاع التنموي الجديد:');
+            if (newSec && newSec.trim()) {
+                const trimmed = newSec.trim();
+                if (!availableSectors.includes(trimmed)) {
+                    availableSectors.push(trimmed);
+                    initCategoryFilters();
+                    document.getElementById('fieldCategory').value = trimmed;
+                }
+            }
+        }
+
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'مطلوب':
+                    return `<span class="bg-amber-100 text-amber-800 border border-amber-300 font-extrabold text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-bullseye"></i> مطلوب للتمويل</span>`;
+                case 'مستمر':
+                    return `<span class="bg-sky-100 text-sky-800 border border-sky-300 font-extrabold text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-spinner fa-spin text-[9px]"></i> قيد التنفيذ</span>`;
+                case 'متوقف':
+                    return `<span class="bg-rose-100 text-rose-800 border border-rose-300 font-extrabold text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-circle-pause"></i> متوقف مؤقتاً</span>`;
+                case 'مكتمل':
+                    return `<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> مكتمل ومنجز</span>`;
+                default:
+                    return `<span class="bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5 rounded-full">${status}</span>`;
+            }
+        }
+
+        function renderProjects() {
+            const grid = document.getElementById('projectsGrid');
+            const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            const filtered = projectsData.filter(p => {
+                const matchCat = (activeCategory === 'الكل' || p.category === activeCategory);
+                const matchStatus = (activeStatus === 'الكل' || p.status === activeStatus);
+                const matchSearch = p.title.toLowerCase().includes(search) || 
+                                    p.id.toLowerCase().includes(search) || 
+                                    p.location.toLowerCase().includes(search) || 
+                                    p.beneficiaryEntity.toLowerCase().includes(search);
+                return matchCat && matchStatus && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full p-8 text-center text-slate-400 bg-white rounded-xl border border-slate-200">لا توجد مشاريع أو دراسات مطابقة للاستعلام المحدد.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => {
+                const filesCount = p.attachments ? p.attachments.length : 0;
+                return `
+                <div class="bg-white rounded-xl border border-slate-200 p-4 card-3d flex flex-col justify-between">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between gap-1 text-[11px]">
+                            <span class="bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-200">${p.category}</span>
+                            ${getStatusBadge(p.status)}
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-sm leading-snug line-clamp-2">${p.title}</h4>
+                        <div class="text-[11px] text-slate-500 space-y-0.5">
+                            <p><i class="fa-solid fa-building-user text-slate-400 ml-1"></i> الجهة: <span class="font-semibold text-slate-700">${p.beneficiaryEntity}</span></p>
+                            <p><i class="fa-solid fa-location-dot text-slate-400 ml-1"></i> الموقع: <span class="font-semibold text-slate-700">${p.location}</span></p>
+                            ${filesCount > 0 ? `<p class="text-raafa-800 font-bold"><i class="fa-solid fa-paperclip ml-1 text-gold-600"></i> ${filesCount} مرفقات جاهزة للمعاينة</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 space-y-2 text-xs">
+                        <div class="flex justify-between items-center text-slate-600 bg-slate-50 p-2 rounded-lg">
+                            <span>إجمالي الموازنة:</span>
+                            <span class="font-black text-raafa-900 text-sm">${p.costDisplay}</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600 px-1">
+                            <span>المستفيدون:</span>
+                            <span class="font-bold text-slate-700">${p.beneficiaries}</span>
+                        </div>
+                        <div class="flex gap-1.5 pt-1">
+                            <button onclick="viewProposal('${p.id}')" class="flex-1 bg-slate-50 hover:bg-raafa-50 text-raafa-900 font-bold py-2 px-2 rounded-lg border border-slate-200 hover:border-raafa-700 text-xs flex items-center justify-center gap-1.5 transition">
+                                <i class="fa-solid fa-file-invoice text-gold-500"></i>
+                                <span>استعلام ودراسة</span>
+                            </button>
+                            <button onclick="openProjectModal('${p.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-3 rounded-lg border border-slate-200 text-xs flex items-center justify-center gap-1 transition" title="تعديل دراسة المشروع">
+                                <i class="fa-solid fa-pen-to-square text-raafa-800"></i>
+                                <span>تعديل</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function filterCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = 'filter-btn bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition';
+            });
+            event.target.className = 'filter-btn active bg-raafa-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition';
+            renderProjects();
+        }
+
+        function filterStatus(status) {
+            activeStatus = status;
+            document.querySelectorAll('.status-btn').forEach(btn => {
+                btn.classList.remove('active-status', 'bg-slate-800', 'text-white');
+            });
+            event.target.classList.add('active-status', 'bg-slate-800', 'text-white');
+            renderProjects();
+        }
+
+        // عرض تفاصيل المشروع مع إبراز الاستعراض المباشر للملفات والصور
+        function viewProposal(id) {
+            const p = projectsData.find(x => x.id === id);
+            if (!p) return;
+            currentViewingProject = p;
+
+            document.getElementById('propModalTitle').textContent = p.title;
+            document.getElementById('propModalId').textContent = `الرمز المرجعي: ${p.id}`;
+
+            let budgetTableHtml = '';
+            if (p.budgetBreakdown && p.budgetBreakdown.length > 0) {
+                budgetTableHtml = `
+                    <div class="space-y-1.5">
+                        <h5 class="font-bold text-slate-900 text-xs flex items-center gap-1">
+                            <i class="fa-solid fa-table-list text-raafa-700"></i> جدول بنود التكلفة والموازنة التفصيلية (BOQ):
+                        </h5>
+                        <div class="border border-slate-200 rounded-lg overflow-hidden">
+                            <table class="w-full text-right text-xs">
+                                <thead class="bg-slate-100 font-bold text-slate-700 border-b border-slate-200">
+                                    <tr>
+                                        <th class="p-2">بيان البند / التوريد</th>
+                                        <th class="p-2 text-center w-16">الكمية</th>
+                                        <th class="p-2 text-left w-24">سعر الوحدة</th>
+                                        <th class="p-2 text-left w-28">الإجمالي</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${p.budgetBreakdown.map(b => `
+                                        <tr>
+                                            <td class="p-2 text-slate-800">${b.item}</td>
+                                            <td class="p-2 text-center font-bold">${b.qty}</td>
+                                            <td class="p-2 text-left font-mono">${Number(b.unitCost).toLocaleString()}</td>
+                                            <td class="p-2 text-left font-black text-raafa-900">${Number(b.total).toLocaleString()}${p.currency}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                                <tfoot class="bg-emerald-50 border-t border-emerald-200 font-black text-raafa-900">
+                                    <tr>
+                                        <td colspan="3" class="p-2 text-right">إجمالي الموازنة المعتمدة للدراسة:</td>
+                                        <td class="p-2 text-left">${Number(p.totalCostNumber).toLocaleString()} ${p.currency}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // قسم استعراض الملفات داخل المشروع
+            let attachmentsHtml = '';
+            if (p.attachments && p.attachments.length > 0) {
+                attachmentsHtml = `
+                    <div class="space-y-2 pt-2 border-t border-slate-200">
+                        <div class="flex justify-between items-center">
+                            <h5 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                                <i class="fa-solid fa-paperclip text-gold-600"></i> وثائق ومرفقات المشروع (${p.attachments.length}):
+                            </h5>
+                            <span class="text-[11px] text-emerald-700 font-bold">الأصل هو الاستعراض المباشر</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            ${p.attachments.map((att, index) => {
+                                const isImage = (att.type && att.type.startsWith('image/')) || (att.name.match(/\.(jpeg|jpg|png|webp)$/i));
+                                const isPdf = (att.type === 'application/pdf') || (att.name.match(/\.pdf$/i));
+
+                                return `
+                                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-2">
+                                        <div class="flex items-center gap-2 overflow-hidden">
+                                            ${isImage 
+                                                ? `<img src="${att.data}" class="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0 cursor-pointer" onclick="openFileViewer('${p.id}', ${index})">` 
+                                                : `<div class="w-10 h-10 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center shrink-0">
+                                                     <i class="fa-solid ${isPdf ? 'fa-file-pdf text-rose-600' : 'fa-file-lines text-slate-600'} text-lg"></i>
+                                                   </div>`
+                                            }
+                                            <div class="truncate">
+                                                <p class="font-bold text-slate-800 text-xs truncate" title="${att.name}">${att.name}</p>
+                                                <span class="text-[10px] text-slate-400">${att.size}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center gap-1.5 pt-1 border-t border-slate-200/60">
+                                            <!-- زر الاستعراض المباشر الأساسي -->
+                                            <button onclick="openFileViewer('${p.id}',${index})" class="flex-1 bg-raafa-800 hover:bg-raafa-700 text-white py-1.5 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow-xs transition">
+                                                <i class="fa-solid fa-eye text-gold-400"></i>
+                                                <span>استعراض</span>
+                                            </button>
+                                            
+                                            <!-- زر التحميل الاختياري -->
+                                            <a href="${att.data}" download="${att.name}" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 py-1.5 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition" title="تحميل الملف للجهاز">
+                                                <i class="fa-solid fa-download"></i>
+                                                <span>تحميل</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('propModalBody').innerHTML = `
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+                    <div>
+                        <span class="text-slate-400 block">حالة المشروع</span>
+                        <div class="mt-0.5">${getStatusBadge(p.status)}</div>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">الجهة المستفيدة</span>
+                        <strong class="text-slate-800">${p.beneficiaryEntity}</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">الموقع</span>
+                        <strong class="text-slate-800">${p.location}</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">مدة التنفيذ</span>
+                        <strong class="text-slate-800">${p.duration || 'حسب الخطة'}</strong>
+                    </div>
+                </div>
+
+                <div class="text-xs space-y-1">
+                    <h5 class="font-bold text-slate-900">مبررات المشروع وأهدافه:</h5>
+                    <p class="text-slate-600 bg-white p-2.5 rounded-lg border border-slate-100 leading-relaxed">${p.rationale}</p>
+                </div>
+
+                <div class="text-xs space-y-1">
+                    <h5 class="font-bold text-slate-900">المكونات وآلية التنفيذ:</h5>
+                    <p class="text-slate-600 bg-white p-2.5 rounded-lg border border-slate-100 leading-relaxed">${p.components}</p>
+                </div>
+
+                ${budgetTableHtml}
+                ${attachmentsHtml}
+            `;
+
+            document.getElementById('proposalModal').classList.remove('hidden');
+            document.getElementById('proposalModal').classList.add('flex');
+        }
+
+        // دالة فتح عارض الملفات والصور المباشر داخل المشروع
+        function openFileViewer(projectId, fileIndex) {
+            const p = projectsData.find(x => x.id === projectId);
+            if (!p || !p.attachments || !p.attachments[fileIndex]) return;
+
+            const file = p.attachments[fileIndex];
+            const isImage = (file.type && file.type.startsWith('image/')) || (file.name.match(/\.(jpeg|jpg|png|webp)$/i));
+            const isPdf = (file.type === 'application/pdf') || (file.name.match(/\.pdf$/i));
+
+            document.getElementById('viewerFileName').textContent = file.name;
+            document.getElementById('viewerDownloadBtn').href = file.data;
+            document.getElementById('viewerDownloadBtn').download = file.name;
+
+            const icon = document.getElementById('viewerFileIcon');
+            icon.className = isImage ? 'fa-solid fa-image text-emerald-400 text-base' : isPdf ? 'fa-solid fa-file-pdf text-rose-500 text-base' : 'fa-solid fa-file text-gold-400 text-base';
+
+            const container = document.getElementById('viewerContentArea');
+            container.innerHTML = '';
+
+            if (isImage) {
+                container.innerHTML = `
+                    <div class="max-h-full flex flex-col items-center justify-center p-2">
+                        <img src="${file.data}" alt="${file.name}" class="max-h-[72vh] max-w-full rounded-xl shadow-lg object-contain border border-slate-300">
+                    </div>
+                `;
+            } else if (isPdf) {
+                container.innerHTML = `
+                    <iframe src="${file.data}" class="w-full h-full rounded-xl border border-slate-300 shadow-inner"></iframe>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center p-8 bg-white rounded-2xl border border-slate-200 shadow-sm max-w-md">
+                        <i class="fa-solid fa-file-lines text-5xl text-raafa-800 mb-3"></i>
+                        <h4 class="font-bold text-slate-800 text-sm mb-1">${file.name}</h4>
+                        <p class="text-xs text-slate-500 mb-4">هذا النوع من المستندات يتطلب فتحه بتطبيقه المكتبي أو تحميله مباشرة.</p>
+                        <a href="${file.data}" download="${file.name}" class="bg-raafa-800 text-white font-bold px-4 py-2 rounded-lg text-xs inline-flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-download"></i> تحميل المستند الآن
+                        </a>
+                    </div>
+                `;
+            }
+
+            document.getElementById('fileViewerModal').classList.remove('hidden');
+            document.getElementById('fileViewerModal').classList.add('flex');
+        }
+
+        // التعامل مع تحميل وقراءة الملفات (Base64)
+        function handleFilesSelected(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const formattedSize = file.size > 1024 * 1024 
+                        ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' 
+                        : Math.round(file.size / 1024) + ' KB';
+
+                    currentFormFiles.push({
+                        name: file.name,
+                        type: file.type || 'application/octet-stream',
+                        size: formattedSize,
+                        data: e.target.result
+                    });
+                    renderAttachedFilesList();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removeAttachment(index) {
+            currentFormFiles.splice(index, 1);
+            renderAttachedFilesList();
+        }
+
+        function renderAttachedFilesList() {
+            const container = document.getElementById('attachedFilesList');
+            if (currentFormFiles.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 text-[11px] text-center py-1">لا توجد ملفات مرفقة حالياً.</p>`;
+                return;
+            }
+
+            container.innerHTML = currentFormFiles.map((f, i) => {
+                const isImage = (f.type && f.type.startsWith('image/')) || (f.name.match(/\.(jpeg|jpg|png|webp)$/i));
+                return `
+                <div class="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-xs">
+                    <div class="flex items-center gap-2 truncate">
+                        <i class="fa-solid ${isImage ? 'fa-image text-emerald-600' : 'fa-file text-raafa-700'}"></i>
+                        <span class="font-bold text-slate-800 truncate">${f.name}</span>
+                        <span class="text-[10px] text-slate-400">(${f.size})</span>
+                    </div>
+                    <button type="button" onclick="removeAttachment(${i})" class="text-rose-500 hover:text-rose-700 text-xs px-1">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            }).join('');
+        }
+
+        // إدارة جدول الموازنة
+        function addBudgetItemRow(itemName = '', qty = 1, unitCost = 0) {
+            const tbody = document.getElementById('budgetItemsTbody');
+            const row = document.createElement('tr');
+            row.className = 'budget-row';
+            row.innerHTML = `
+                <td class="p-2">
+                    <input type="text" value="${itemName}" required placeholder="مثال: توريد أجهزة تكييف قدرة 2 طن" class="w-full p-1.5 bg-white border border-slate-200 rounded text-xs b-item-name">
+                </td>
+                <td class="p-2">
+                    <input type="number" value="${qty}" min="1" step="any" oninput="calculateBudgetTotals()" required class="w-full p-1.5 bg-white border border-slate-200 rounded text-xs text-center font-bold b-item-qty">
+                </td>
+                <td class="p-2">
+                    <input type="number" value="${unitCost}" min="0" step="any" oninput="calculateBudgetTotals()" required class="w-full p-1.5 bg-white border border-slate-200 rounded text-xs text-left font-bold b-item-cost">
+                </td>
+                <td class="p-2 font-black text-raafa-900 text-left text-xs b-item-total">0</td>
+                <td class="p-2 text-center">
+                    <button type="button" onclick="this.closest('tr').remove(); calculateBudgetTotals();" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            `;
+            tbody.appendChild(row);
+            calculateBudgetTotals();
+        }
+
+        function calculateBudgetTotals() {
+            const rows = document.querySelectorAll('.budget-row');
+            const curr = document.getElementById('fieldCurrency').value;
+            let grandTotal = 0;
+
+            rows.forEach(r => {
+                const qty = parseFloat(r.querySelector('.b-item-qty').value) || 0;
+                const cost = parseFloat(r.querySelector('.b-item-cost').value) || 0;
+                const total = Math.round(qty * cost * 100) / 100;
+                grandTotal += total;
+                r.querySelector('.b-item-total').textContent = total.toLocaleString() + ' ' + curr;
+            });
+
+            document.getElementById('calculatedTotalCost').textContent = grandTotal.toLocaleString() + ' ' + curr;
+            return grandTotal;
+        }
+
+        function openProjectModal(editId = null) {
+            const tbody = document.getElementById('budgetItemsTbody');
+            tbody.innerHTML = '';
+            currentFormFiles = [];
+
+            if (editId) {
+                const p = projectsData.find(x => x.id === editId);
+                if (!p) return;
+                document.getElementById('editProjId').value = p.id;
+                document.getElementById('modalFormHeading').innerHTML = `<i class="fa-solid fa-pen-to-square text-gold-500"></i> <span>تعديل دراسة المشروع: ${p.title}</span>`;
+                document.getElementById('fieldTitle').value = p.title;
+                document.getElementById('fieldStatus').value = p.status || 'مطلوب';
+                document.getElementById('fieldCategory').value = p.category;
+                document.getElementById('fieldBeneficiaryEntity').value = p.beneficiaryEntity;
+                document.getElementById('fieldLocation').value = p.location;
+                document.getElementById('fieldDuration').value = p.duration || '';
+                document.getElementById('fieldBeneficiaries').value = p.beneficiaries;
+                document.getElementById('fieldCurrency').value = p.currency || 'SAR';
+                document.getElementById('fieldRationale').value = p.rationale;
+                document.getElementById('fieldComponents').value = p.components;
+
+                if (p.budgetBreakdown && p.budgetBreakdown.length > 0) {
+                    p.budgetBreakdown.forEach(b => addBudgetItemRow(b.item, b.qty, b.unitCost));
+                } else {
+                    addBudgetItemRow('التوريدات والأعمال الأساسية', 1, p.totalCostNumber || 0);
+                }
+
+                currentFormFiles = p.attachments ? [...p.attachments] : [];
+            } else {
+                document.getElementById('editProjId').value = '';
+                document.getElementById('modalFormHeading').innerHTML = `<i class="fa-solid fa-file-circle-plus text-gold-500"></i> <span>إدراج دراسة مشروع وموازنة جديدة</span>`;
+                document.getElementById('fieldTitle').value = '';
+                document.getElementById('fieldStatus').value = 'مطلوب';
+                document.getElementById('fieldBeneficiaryEntity').value = '';
+                document.getElementById('fieldLocation').value = 'تريم - حضرموت';
+                document.getElementById('fieldDuration').value = '';
+                document.getElementById('fieldBeneficiaries').value = '';
+                document.getElementById('fieldRationale').value = '';
+                document.getElementById('fieldComponents').value = '';
+                addBudgetItemRow('التوريدات والمواد الأساسية', 1, 0);
+                addBudgetItemRow('أعمال التركيب والتشغيل والضمان', 1, 0);
+            }
+
+            renderAttachedFilesList();
+            document.getElementById('projectEditModal').classList.remove('hidden');
+            document.getElementById('projectEditModal').classList.add('flex');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
+        function handleSaveProject(e) {
+            e.preventDefault();
+            const grandTotal = calculateBudgetTotals();
+            const curr = document.getElementById('fieldCurrency').value;
+            const editId = document.getElementById('editProjId').value;
+
+            const breakdown = [];
+            document.querySelectorAll('.budget-row').forEach(r => {
+                const item = r.querySelector('.b-item-name').value.trim();
+                const qty = parseFloat(r.querySelector('.b-item-qty').value) || 1;
+                const unitCost = parseFloat(r.querySelector('.b-item-cost').value) || 0;
+                if (item) {
+                    breakdown.push({ item, qty, unitCost, total: qty * unitCost });
+                }
+            });
+
+            const projPayload = {
+                id: editId || ('PRJ-' + (100 + projectsData.length + 1)),
+                title: document.getElementById('fieldTitle').value.trim(),
+                status: document.getElementById('fieldStatus').value,
+                category: document.getElementById('fieldCategory').value,
+                beneficiaryEntity: document.getElementById('fieldBeneficiaryEntity').value.trim(),
+                location: document.getElementById('fieldLocation').value.trim(),
+                duration: document.getElementById('fieldDuration').value.trim() || 'وفق الجدول الزمني',
+                beneficiaries: document.getElementById('fieldBeneficiaries').value.trim(),
+                currency: curr,
+                totalCostNumber: grandTotal,
+                costDisplay: grandTotal.toLocaleString() + ' ' + (curr === 'SAR' ? 'ريال سعودي' : curr === 'USD' ? 'دولار أمريكي' : 'ريال يمني'),
+                rationale: document.getElementById('fieldRationale').value.trim(),
+                components: document.getElementById('fieldComponents').value.trim(),
+                budgetBreakdown: breakdown,
+                attachments: [...currentFormFiles]
+            };
+
+            if (editId) {
+                const idx = projectsData.findIndex(x => x.id === editId);
+                if (idx > -1) {
+                    projectsData[idx] = projPayload;
+                }
+            } else {
+                projectsData.unshift(projPayload);
+            }
+
+            saveProjectsToStorage();
+            renderProjects();
+            closeModal('projectEditModal');
+        }
+
+        function triggerPrintNow() {
+            if (!currentViewingProject) return;
+            const p = currentViewingProject;
+            const printBox = document.getElementById('printableDoc');
+
+            let budgetRows = '';
+            if (p.budgetBreakdown && p.budgetBreakdown.length > 0) {
+                budgetRows = p.budgetBreakdown.map((b, idx) => `
+                    <tr>
+                        <td style="padding: 6px; border: 1px solid #94a3b8; text-align: center;">${idx + 1}</td>
+                        <td style="padding: 6px; border: 1px solid #94a3b8;">${b.item}</td>
+                        <td style="padding: 6px; border: 1px solid #94a3b8; text-align: center; font-weight: bold;">${b.qty}</td>
+                        <td style="padding: 6px; border: 1px solid #94a3b8; text-align: left;">${Number(b.unitCost).toLocaleString()}</td>
+                        <td style="padding: 6px; border: 1px solid #94a3b8; text-align: left; font-weight: bold;">${Number(b.total).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+            }
+
+            let attachmentsNote = '';
+            if (p.attachments && p.attachments.length > 0) {
+                attachmentsNote = `
+                    <div style="font-size: 10px; margin-top: 8px; color: #475569;">
+                        <strong>الوثائق والمرفقات الفنية المعتمدة المسلمة مع الدراسة: </strong>
+                        ${p.attachments.map(a => a.name).join(' | ')}
+                    </div>
+                `;
+            }
+
+            printBox.innerHTML = `
+                <div style="direction: rtl; font-family: 'Cairo', sans-serif; color: #0f172a; line-height: 1.5;">
+                    <table style="width: 100%; border-bottom: 2px solid #c59a3f; padding-bottom: 10px; margin-bottom: 15px;">
+                        <tr>
+                            <td style="width: 20%; text-align: right; vertical-align: middle;">
+                                <img src="WhatsApp Image 2026-10-18 at 12.16.57 AM.jpeg" style="height: 75px; object-contain;" alt="شعار المؤسسة">
+                            </td>
+                            <td style="width: 60%; text-align: center; vertical-align: middle;">
+                                <h2 style="font-size: 17px; font-weight: 800; color: #14532d; margin: 0;">مؤسسة الرأفة للتنمية التعليمية والاجتماعية</h2>
+                                <p style="font-size: 11px; color: #475569; margin: 3px 0 0 0;">الجمهورية اليمنية - حضرموت - تريم | إدارة المشاريع والتخطيط</p>
+                                <p style="font-size: 13px; font-weight: bold; color: #c59a3f; margin: 4px 0 0 0;">وثيقة دراسة ومقترح مشروع تنموي</p>
+                            </td>
+                            <td style="width: 20%; text-align: left; vertical-align: middle; font-size: 11px; font-family: monospace;">
+                                <p style="margin: 0;">القيد: <strong>${p.id}</strong></p>
+                                <p style="margin: 3px 0 0 0;">التاريخ: ${new Date().toISOString().slice(0, 10)}</p>
+                                <p style="margin: 3px 0 0 0;">الحالة: <strong>${p.status}</strong></p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <h3 style="font-size: 15px; font-weight: 800; text-align: center; color: #14532d; margin: 10px 0;">${p.title}</h3>
+
+                    <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 12px; border: 1px solid #cbd5e1;">
+                        <tr style="background-color: #f8fafc;">
+                            <td style="padding: 6px; border: 1px solid #cbd5e1; font-weight: bold; width: 25%;">القطاع التنموي:</td>
+                            <td style="padding: 6px; border: 1px solid #cbd5e1; width: 25%;">${p.category}</td>
+                            <td style="padding: 6px; border: 1px solid #cbd5e1; font-weight: bold; width: 25%;">الجهة المستفيدة:</td>
+                            <td style="padding: 6px; border: 1px solid #cbd5e1; width: 25%;">${p.beneficiaryEntity}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px; border: 1px solid #cbd5e1; font-weight: bold;">نطاق وموقع التنفيذ:</td>
+                            <td style="padding: 6px; border: 1px solid #cbd5e1;">${p.location}</td>
+                            <td style="padding: 6px; border: 1px solid #cbd5e1; font-weight: bold;">المستفيدون والمدة:</td>
+                            <td style="padding: 6px; border: 1px solid #cbd5e1;">${p.beneficiaries} (${p.duration || 'مرحلة واحدة'})</td>
+                        </tr>
+                    </table>
+
+                    <div style="font-size: 11px; margin-bottom: 10px;">
+                        <strong style="color: #14532d;">مبررات وأهداف المشروع:</strong>
+                        <div style="background-color: #f8fafc; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 3px; line-height: 1.6;">${p.rationale}</div>
+                    </div>
+
+                    <div style="font-size: 11px; margin-bottom: 12px;">
+                        <strong style="color: #14532d;">آلية التنفيذ والاشتراطات الفنية:</strong>
+                        <div style="background-color: #f8fafc; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 3px; line-height: 1.6;">${p.components}</div>
+                    </div>
+
+                    ${budgetRows ? `
+                        <div style="margin-top: 10px;">
+                            <strong style="color: #14532d; font-size: 11px;">جدول دراسة التكلفة والموازنة التقديرية (BOQ):</strong>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 10.5px; text-align: right; margin-top: 4px; border: 1px solid #94a3b8;">
+                                <thead>
+                                    <tr style="background-color: #f1f5f9;">
+                                        <th style="padding: 6px; border: 1px solid #94a3b8; text-align: center; width: 35px;">م</th>
+                                        <th style="padding: 6px; border: 1px solid #94a3b8;">بيان البند / التوريد</th>
+                                        <th style="padding: 6px; border: 1px solid #94a3b8; text-align: center; width: 60px;">الكمية</th>
+                                        <th style="padding: 6px; border: 1px solid #94a3b8; text-align: left; width: 90px;">سعر الوحدة</th>
+                                        <th style="padding: 6px; border: 1px solid #94a3b8; text-align: left; width: 110px;">الإجمالي (${p.currency})</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${budgetRows}
+                                </tbody>
+                                <tfoot>
+                                    <tr style="background-color: #f0fdf4; font-weight: bold;">
+                                        <td colspan="4" style="padding: 6px; border: 1px solid #94a3b8; text-align: right;">إجمالي الموازنة العامة للدراسة:</td>
+                                        <td style="padding: 6px; border: 1px solid #94a3b8; text-align: left; font-size: 11px; color: #166534;">${p.costDisplay}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    ` : ''}
+
+                    ${attachmentsNote}
+
+                    <table style="width: 100%; margin-top: 30px; font-size: 11px; font-weight: bold; text-align: center;">
+                        <tr>
+                            <td style="width: 33%; vertical-align: top;">
+                                <p style="margin: 0; color: #64748b;">إدارة التخطيط والمشاريع</p>
+                                <p style="margin-top: 35px; border-top: 1px dotted #94a3b8; display: inline-block; padding-top: 5px; width: 140px;">م. المختص</p>
+                            </td>
+                            <td style="width: 33%; vertical-align: top;">
+                                <p style="margin: 0; color: #64748b;">الختم الرسمي للمؤسسة</p>
+                                <div style="width: 65px; height: 65px; border: 1px dashed #166534; border-radius: 50%; margin: 8px auto 0 auto;"></div>
+                            </td>
+                            <td style="width: 33%; vertical-align: top;">
+                                <p style="margin: 0; color: #64748b;">اعتماد المدير التنفيذي</p>
+                                <p style="margin-top: 35px; border-top: 1px dotted #94a3b8; display: inline-block; padding-top: 5px; width: 160px; color: #14532d;">أ. صالح علي أبوبكر الخطيب</p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+
+            window.print();
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
